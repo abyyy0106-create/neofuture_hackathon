@@ -1,3 +1,8 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+from flask_cors import CORS
+CORS(app)
+
 from flask import Flask, request, jsonify
 import os
 import uuid
@@ -89,8 +94,8 @@ def match_resumes():
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({"status": "running"})
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    return jsonify({
+        "status": "running",
+        "service": "AI Resume Screener",
+        "version": "1.1"
+    })
