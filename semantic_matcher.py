@@ -187,5 +187,6 @@ class SemanticMatcher:
 def match_skills(resume_skills, job_skills):
     matched = list(set(resume_skills) & set(job_skills))
     missing = list(set(job_skills) - set(resume_skills))
+    gap_percentage = len(missing) / max(len(job_skills), 1)
     
     return matched, missing
