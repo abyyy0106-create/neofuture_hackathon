@@ -1,0 +1,21 @@
+<h2>Candidate Dashboard</h2>
+
+<form method="POST" action="/candidate/upload" enctype="multipart/form-data">
+
+Select Job:<br>
+<select name="job_id">
+{% for job in jobs %}
+<option value="{{ job._id }}">{{ job.title }}</option>
+{% endfor %}
+</select>
+
+<br><br>
+
+Upload Resume:<br>
+<input type="file" name="resume">
+
+<br><br>
+
+<button type="submit">Check Score</button>
+
+</form>
