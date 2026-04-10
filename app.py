@@ -28,8 +28,8 @@ def upload_resume():
         file = request.files['file']
         job_description = request.form.get('job_description', '')
 
-        if file.filename == '':
-            return jsonify({'error': 'No file selected'}), 400
+        if not file.filename.endswith(('.pdf', '.docx', '.txt')):
+            return jsonify({'error': 'Unsupported file format'}), 400
 
         # Generate unique temp file
         unique_name = f"{uuid.uuid4()}_{file.filename}"

@@ -3,6 +3,9 @@ import numpy as np
 from typing import Dict, List, Union
 import re
 
+TFIDF_WEIGHT = 0.5
+SEMANTIC_WEIGHT = 0.5
+
 class SemanticMatcher:
     def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
         """
