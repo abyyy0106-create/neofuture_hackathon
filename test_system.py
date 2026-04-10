@@ -46,10 +46,12 @@ def test_semantic_matching():
     We are looking for a Python developer with machine learning experience.
     The ideal candidate should have:
     - Strong Python programming skills
-    - Experience with machine learning frameworks
+    - Experience with machine learning frameworks like TensorFlow or PyTorch
     - Knowledge of AWS and cloud services
     - SQL database experience
     - Docker containerization skills
+    - Experience building REST APIs
+    - Bachelor's degree in Computer Science or related field
     """
 
     score = matcher.calculate_match(resume_data, job_description)
@@ -57,7 +59,17 @@ def test_semantic_matching():
 
     print(f"Match Score: {score:.3f}")
     print(f"Match Level: {explanation['match_level']}")
-    print("Recommendations:")
+
+    # Show detailed breakdown
+    if 'breakdown' in explanation:
+        print("\nDetailed Breakdown:")
+        breakdown = explanation['breakdown']
+        for component, comp_score in breakdown['component_scores'].items():
+            weight = breakdown['weights'][component]
+            weighted_contribution = comp_score * weight
+            print(f"  {component.capitalize()}: {comp_score:.3f} (weight: {weight}, contribution: {weighted_contribution:.3f})")
+
+    print("\nRecommendations:")
     for rec in explanation['recommendations']:
         print(f"  - {rec}")
 
