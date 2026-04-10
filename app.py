@@ -1,101 +1,175 @@
-import logging
-logging.basicConfig(level=logging.INFO)
-from flask_cors import CORS
-CORS(app)
+from flask import Flask, render_template, request, redirect, session
+from flask_pymongo import PyMongo
+from bson.objectid import ObjectId
+from functools import wraps
 
-from flask import Flask, request, jsonify
-import os
-import uuid
-from resumer_parser import ResumeParser
-from semantic_matcher import SemanticMatcher
+import re
+import pdfplumber
+import docx
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+from semantic_matcher import sbert_similarity
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 app = Flask(__name__)
-
-# Initialize components once (important for performance)
-parser = ResumeParser()
-matcher = SemanticMatcher()
-
-UPLOAD_DIR = "temp_uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.secret_key = "hackathon_key"
 
 
-@app.route('/upload_resume', methods=['POST'])
-def upload_resume():
-    try:
-        if 'file' not in request.files:
-            return jsonify({'error': 'No file provided'}), 400
+# Mongo
+app.config["MONGO_URI"] = "mongodb+srv://resume_user:fcritru12345@cluster0.vpqwj7a.mongodb.net/ai_resume_db"
+mongo = PyMongo(app)
 
-        file = request.files['file']
-        job_description = request.form.get('job_description', '')
-
-        if not file.filename.endswith(('.pdf', '.docx', '.txt')):
-            return jsonify({'error': 'Unsupported file format'}), 400
-
-        # Generate unique temp file
-        unique_name = f"{uuid.uuid4()}_{file.filename}"
-        temp_path = os.path.join(UPLOAD_DIR, unique_name)
-        file.save(temp_path)
-
-        # Parse resume
-        resume_data = parser.parse_resume(temp_path)
-
-        # Optional matching
-        if job_description:
-            match_result = matcher.calculate_match(resume_data, job_description)
-            resume_data["match"] = match_result
-
-        return jsonify(resume_data)
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-    finally:
-        # Cleanup safely
-        if 'temp_path' in locals() and os.path.exists(temp_path):
-            os.remove(temp_path)
+users = mongo.db.users
+jds = mongo.db.job_descriptions
 
 
-@app.route('/match_resumes', methods=['POST'])
-def match_resumes():
-    try:
-        data = request.get_json()
+# role protection
+def login_required(role=None):
+    def wrapper(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if "user" not in session:
+                return redirect("/login")
+            if role and session.get("role") != role:
+                return "Unauthorized", 403
+            return f(*args, **kwargs)
+        return decorated
+    return wrapper
 
-        if not data:
-            return jsonify({'error': 'No JSON body provided'}), 400
 
-        resumes = data.get('resumes', [])
-        job_description = data.get('job_description', '')
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    return re.sub(r"\s+", " ", text)
 
-        if not resumes or not job_description:
-            return jsonify({'error': 'Missing resumes or job description'}), 400
 
-        matched_resumes = []
+def load_file(file):
+    if not file:
+        return ""
 
-        # batch matching
-        for resume in resumes:
-            result = matcher.calculate_match(resume, job_description)
-            resume["match"] = result
-            matched_resumes.append(resume)
+    name = file.filename.lower()
 
-        # Sort by final score
-        matched_resumes.sort(
-            key=lambda x: x["match"]["final_score"],
-            reverse=True
-        )
+    if name.endswith(".txt"):
+        return clean_text(file.read().decode("utf-8"))
 
-        return jsonify({
-            "total": len(matched_resumes),
-            "matched_resumes": matched_resumes
+    elif name.endswith(".docx"):
+        d = docx.Document(file)
+        return clean_text("\n".join(p.text for p in d.paragraphs))
+
+    elif name.endswith(".pdf"):
+        text = ""
+        with pdfplumber.open(file) as pdf:
+            for p in pdf.pages:
+                if p.extract_text():
+                    text += p.extract_text()
+        return clean_text(text)
+
+    return ""
+
+
+def score_resume(resume, jd):
+    vec = TfidfVectorizer(stop_words="english")
+    mat = vec.fit_transform([resume, jd])
+    tfidf = cosine_similarity(mat[0:1], mat[1:2])[0][0] * 100
+
+    semantic = sbert_similarity(resume, jd)
+    final = 0.6 * semantic + 0.4 * tfidf
+
+    return round(final, 2)
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        users.insert_one({
+            "username": request.form["username"],
+            "password": generate_password_hash(request.form["password"]),
+            "role": request.form["role"]
+        })
+        return redirect("/login")
+
+    return render_template("signup.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user = users.find_one({"username": request.form["username"]})
+
+        if user and check_password_hash(user["password"], request.form["password"]):
+            session["user"] = user["username"]
+            session["role"] = user["role"]
+            return redirect(f"/{user['role']}")
+
+    return render_template("login.html")
+
+
+# HR dashboard
+@app.route("/hr")
+@login_required("hr")
+def hr():
+    return render_template("hr_dashboard.html", jds=list(jds.find()))
+
+
+@app.route("/hr/upload", methods=["POST"])
+@login_required("hr")
+def upload_jd():
+    jd = load_file(request.files["jd"])
+
+    jds.insert_one({
+        "title": request.form["title"],
+        "jd": jd
+    })
+
+    return redirect("/hr")
+
+
+@app.route("/hr/analyze", methods=["POST"])
+@login_required("hr")
+def analyze():
+    jd = jds.find_one({"_id": ObjectId(request.form["jd_id"])})
+
+    results = []
+
+    for file in request.files.getlist("resumes"):
+        resume = load_file(file)
+        score = score_resume(resume, jd["jd"])
+
+        results.append({
+            "name": file.filename,
+            "score": score
         })
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    results.sort(key=lambda x: x["score"], reverse=True)
+
+    return render_template("hr_results.html", results=results)
 
 
-@app.route('/health', methods=['GET'])
-def health():
-    return jsonify({
-        "status": "running",
-        "service": "AI Resume Screener",
-        "version": "1.1"
-    })
+# candidate
+@app.route("/candidate")
+@login_required("candidate")
+def candidate():
+    return render_template("candidate.html", jobs=list(jds.find()))
+
+
+@app.route("/candidate/upload", methods=["POST"])
+@login_required("candidate")
+def candidate_upload():
+    resume = load_file(request.files["resume"])
+    jd = jds.find_one({"_id": ObjectId(request.form["job_id"])})
+
+    score = score_resume(resume, jd["jd"])
+
+    return render_template("candidate_result.html", score=score)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
