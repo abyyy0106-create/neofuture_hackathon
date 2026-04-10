@@ -181,3 +181,8 @@ class SemanticMatcher:
                 found_keywords.add(keyword)
 
         return found_keywords
+def match_skills(resume_skills, job_skills):
+    matched = list(set(resume_skills) & set(job_skills))
+    missing = list(set(job_skills) - set(resume_skills))
+    
+    return matched, missing
