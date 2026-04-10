@@ -1,3 +1,4 @@
+import logging
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
 from typing import Dict, List, Union
@@ -7,6 +8,9 @@ from functools import lru_cache
 
 TFIDF_WEIGHT = 0.5
 SEMANTIC_WEIGHT = 0.5
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class SemanticMatcher:
     def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
@@ -31,56 +35,98 @@ class SemanticMatcher:
         Returns a score between 0 and 1, where 1 is perfect match.
         """
         if isinstance(resume_data, dict):
-            # Extract relevant text from resume data
-            resume_text = self._prepare_resume_text(resume_data)
-            # Calculate weighted score with breakdown
             return self._calculate_weighted_score(resume_data, job_description)
-        else:
-            resume_text = resume_data
 
         if self.model:
-            return self._calculate_semantic_similarity(resume_text, job_description)
+            return self._calculate_semantic_similarity(resume_data, job_description)
         else:
-            return self._calculate_basic_similarity(resume_text, job_description)
+            return self._calculate_basic_similarity(resume_data, job_description)
 
     def _calculate_weighted_score(self, resume_data: Dict, job_description: str) -> float:
         """
         Calculate weighted match score with different components.
         """
-        weights = {
-            'skills': 0.4,      # Most important
-            'experience': 0.3,  # Second most important
-            'semantic': 0.2,    # Overall semantic similarity
-            'education': 0.1    # Least important for technical roles
-        }
+        try:
+            weights = {
+                'skills': 0.6,
+                'experience': 0.2,
+                'semantic': 0.1,
+                'education': 0.1
+            }
 
-        scores = {}
+            scores = {
+                'skills': 0.0,
+                'experience': 0.0,
+                'semantic': 0.0,
+                'education': 0.0
+            }
 
-        # Skills matching (most weighted)
-        if 'skills' in resume_data and resume_data['skills']:
-            scores['skills'] = self._calculate_skills_match(resume_data['skills'], job_description)
-        else:
-            scores['skills'] = 0.0
+            if 'skills' in resume_data and resume_data['skills']:
+                scores['skills'] = self._calculate_skills_match(resume_data['skills'], job_description)
 
-        # Experience matching
-        if 'experience' in resume_data and resume_data['experience']:
-            scores['experience'] = self._calculate_experience_match(resume_data['experience'], job_description)
-        else:
-            scores['experience'] = 0.0
+            if 'experience' in resume_data and resume_data['experience']:
+                scores['experience'] = self._calculate_experience_match(resume_data['experience'], job_description)
 
-        # Semantic similarity of full text
-        resume_text = self._prepare_resume_text(resume_data)
-        if self.model:
-            scores['semantic'] = self._calculate_semantic_similarity(resume_text, job_description)
-        else:
-            scores['semantic'] = self._calculate_basic_similarity(resume_text, job_description)
+            resume_text = self._prepare_resume_text(resume_data)
+            if self.model:
+                scores['semantic'] = self._calculate_semantic_similarity(resume_text, job_description)
+            else:
+                scores['semantic'] = self._calculate_basic_similarity(resume_text, job_description)
 
-            logger.debug(f"Calculated match score: {score:.4f}")
-            return score
+            if 'education' in resume_data and resume_data['education']:
+                scores['education'] = self._calculate_education_match(resume_data['education'], job_description)
+
+            final_score = sum(scores[key] * weights[key] for key in weights)
+            logger.debug(f"Calculated weighted score: {final_score:.4f}")
+            return max(0.0, min(1.0, final_score))
 
         except Exception as e:
-            logger.error(f"Error in calculate_match: {e}", exc_info=True)
+            logger.error(f"Error in _calculate_weighted_score: {e}", exc_info=True)
             raise
+
+    def _calculate_skills_match(self, skills: Union[List[str], str], job_description: str) -> float:
+        if isinstance(skills, str):
+            skills = [skills]
+
+        resume_skills = {str(s).strip().lower() for s in skills if s}
+        job_keywords = self._extract_keywords(job_description)
+
+        if job_keywords:
+            if not resume_skills:
+                return 0.0
+            matched = 0
+            for keyword in job_keywords:
+                if keyword in resume_skills:
+                    matched += 1
+                elif keyword.replace('.', '') in ' '.join(resume_skills):
+                    matched += 1
+            return matched / len(job_keywords)
+
+        job_text = job_description.lower()
+        found = sum(1 for skill in resume_skills if skill in job_text)
+        return found / len(resume_skills) if resume_skills else 0.0
+
+    def _calculate_experience_match(self, experiences: Union[List[str], str], job_description: str) -> float:
+        if isinstance(experiences, str):
+            experiences = [experiences]
+
+        experience_text = ' '.join(str(i) for i in experiences)
+        if self.model:
+            return self._calculate_semantic_similarity(experience_text, job_description)
+        return self._calculate_basic_similarity(experience_text, job_description)
+
+    def _calculate_education_match(self, education: Union[List[str], str], job_description: str) -> float:
+        if isinstance(education, str):
+            education = [education]
+
+        education_text = ' '.join(str(e) for e in education).lower()
+        if 'bachelor' in education_text or 'bs' in education_text or 'b.sc' in education_text:
+            return 1.0
+        if 'master' in education_text or 'ms' in education_text or 'm.sc' in education_text:
+            return 1.0
+        if 'phd' in education_text or 'doctorate' in education_text:
+            return 1.0
+        return 0.2 if education_text else 0.0
 
     def _prepare_resume_text(self, resume_data: Dict) -> str:
         """

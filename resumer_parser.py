@@ -84,7 +84,8 @@ def parse_resume(file_path):
 
     elif file_path.endswith(".docx"):
         text = extract_text_from_docx(file_path)
-
+    elif file_path.endswith(".txt"):
+        text = load_text(file_path)
     else:
         return "Unsupported file format"
 
@@ -101,17 +102,17 @@ def parse_resume(file_path):
     return data
 
 
+class ResumeParser:
+    """Wrapper for the resume parsing utilities."""
+
+    def parse_resume(self, file_path):
+        return parse_resume(file_path)
+
+
 # -----------------------------
 # 7. Test (MAIN)
 # -----------------------------
 if __name__ == "__main__":
-
-    # ⚠️ Make sure this file exists in your folder
-    file = "resume.pdf"  
-# 7. Test (FIXED)
-# -----------------------------
-if __name__ == "__main__":
-    
     file = "resume.pdf"   # ⚠️ Make sure this file exists in your folder
 
     result = parse_resume(file)
