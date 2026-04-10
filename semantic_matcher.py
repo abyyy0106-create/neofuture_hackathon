@@ -2,15 +2,11 @@ from sentence_transformers import SentenceTransformer, util
 import numpy as np
 from typing import Dict, List, Union
 import re
-import logging
+import hashlib
+from functools import lru_cache
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
+TFIDF_WEIGHT = 0.5
+SEMANTIC_WEIGHT = 0.5
 
 class SemanticMatcher:
     def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
@@ -33,39 +29,51 @@ class SemanticMatcher:
         """
         Calculate semantic match score between resume and job description.
         Returns a score between 0 and 1, where 1 is perfect match.
-
-        Args:
-            resume_data: Resume data as dict or string
-            job_description: Job description text
-
-        Returns:
-            float: Match score between 0 and 1
-
-        Raises:
-            ValueError: If job_description is empty or invalid
-            TypeError: If resume_data type is invalid
         """
-        try:
-            if not job_description or not job_description.strip():
-                logger.error("Job description is empty")
-                raise ValueError("Job description cannot be empty")
+        if isinstance(resume_data, dict):
+            # Extract relevant text from resume data
+            resume_text = self._prepare_resume_text(resume_data)
+            # Calculate weighted score with breakdown
+            return self._calculate_weighted_score(resume_data, job_description)
+        else:
+            resume_text = resume_data
 
-            if isinstance(resume_data, dict):
-                resume_text = self._prepare_resume_text(resume_data)
-            elif isinstance(resume_data, str):
-                resume_text = resume_data
-            else:
-                logger.error(f"Invalid resume_data type: {type(resume_data)}")
-                raise TypeError(f"resume_data must be dict or str, got {type(resume_data)}")
+        if self.model:
+            return self._calculate_semantic_similarity(resume_text, job_description)
+        else:
+            return self._calculate_basic_similarity(resume_text, job_description)
 
-            if not resume_text or not resume_text.strip():
-                logger.warning("Resume text is empty after preparation")
-                return 0.0
+    def _calculate_weighted_score(self, resume_data: Dict, job_description: str) -> float:
+        """
+        Calculate weighted match score with different components.
+        """
+        weights = {
+            'skills': 0.4,      # Most important
+            'experience': 0.3,  # Second most important
+            'semantic': 0.2,    # Overall semantic similarity
+            'education': 0.1    # Least important for technical roles
+        }
 
-            if self.model:
-                score = self._calculate_semantic_similarity(resume_text, job_description)
-            else:
-                score = self._calculate_basic_similarity(resume_text, job_description)
+        scores = {}
+
+        # Skills matching (most weighted)
+        if 'skills' in resume_data and resume_data['skills']:
+            scores['skills'] = self._calculate_skills_match(resume_data['skills'], job_description)
+        else:
+            scores['skills'] = 0.0
+
+        # Experience matching
+        if 'experience' in resume_data and resume_data['experience']:
+            scores['experience'] = self._calculate_experience_match(resume_data['experience'], job_description)
+        else:
+            scores['experience'] = 0.0
+
+        # Semantic similarity of full text
+        resume_text = self._prepare_resume_text(resume_data)
+        if self.model:
+            scores['semantic'] = self._calculate_semantic_similarity(resume_text, job_description)
+        else:
+            scores['semantic'] = self._calculate_basic_similarity(resume_text, job_description)
 
             logger.debug(f"Calculated match score: {score:.4f}")
             return score
