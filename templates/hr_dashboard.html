@@ -1,0 +1,31 @@
+<h2>HR Dashboard</h2>
+
+<form method="POST" action="/hr/upload" enctype="multipart/form-data">
+    Job Title:<br>
+    <input type="text" name="title"><br><br>
+
+    Upload JD:<br>
+    <input type="file" name="jd"><br><br>
+
+    <button type="submit">Upload</button>
+</form>
+
+<h3>Available Jobs</h3>
+
+<ul>
+{% for job in jds %}
+<li>
+{{ job.title }}
+
+<form method="POST" action="/hr/analyze" enctype="multipart/form-data">
+<input type="hidden" name="jd_id" value="{{ job._id }}">
+
+Upload Resumes:<br>
+<input type="file" name="resumes" multiple><br><br>
+
+<button type="submit">Analyze</button>
+</form>
+
+</li>
+{% endfor %}
+</ul>
