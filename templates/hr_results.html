@@ -1,290 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>TalentIQ – Screening Results</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screening Results | TalentIQ</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: "Inter", "Segoe UI", sans-serif;
-            background: linear-gradient(135deg, #f8fafc, #eef2ff);
-            color: #111;
+        :root {
+            --bg: #eef2ff;
+            --surface: #ffffff;
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #e2e8f0;
+            --radius: 24px;
         }
-
-        /* NAVBAR */
-        .navbar {
-            background: white;
-            padding: 18px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .navbar h1 {
-            font-size: 22px;
-            color: #2563eb;
-        }
-
-        .logout-btn {
-            text-decoration: none;
-            background: #ef4444;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-weight: 600;
-        }
-
-        .container {
-            width: 92%;
-            max-width: 1300px;
-            margin: auto;
-            padding: 50px 0;
-        }
-
-        .header {
-            margin-bottom: 30px;
-        }
-
-        .header h2 {
-            font-size: 30px;
-            margin-bottom: 6px;
-        }
-
-        .header p {
-            color: #555;
-        }
-
-        /* STATS CARDS */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-            transition: 0.25s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-6px);
-        }
-
-        .stat-card h3 {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .green { color: #16a34a; }
-        .blue { color: #2563eb; }
-        .red { color: #dc2626; }
-
-        /* CRITERIA */
-        .criteria-box {
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 40px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-        }
-
-        .criteria-box div {
-            margin-bottom: 6px;
-            font-size: 14px;
-        }
-
-        /* SECTION TITLES */
-        .section-title {
-            font-size: 22px;
-            margin-bottom: 16px;
-        }
-
-        /* TABLE */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 18px;
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-            margin-bottom: 40px;
-        }
-
-        th, td {
-            padding: 16px;
-            text-align: left;
-        }
-
-        th {
-            background: #f3f4f6;
-            font-size: 12px;
-            text-transform: uppercase;
-            color: #555;
-        }
-
-        tr:not(:last-child) {
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .score-high { color: #16a34a; font-weight: 700; }
-        .score-low { color: #dc2626; font-weight: 700; }
-
-        .rank-badge {
-            background: #2563eb;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .reason {
-            font-size: 13px;
-            color: #dc2626;
-        }
-
-        .back-btn {
-            display: inline-block;
-            padding: 12px 20px;
-            background: #2563eb;
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-        }
-
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Inter, "Segoe UI", sans-serif; background: linear-gradient(135deg, #f8fafc, #eef2ff); color: var(--text); }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 24px 40px; background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+        .brand { font-size: 26px; font-weight: 900; color: var(--primary); }
+        .logout-btn { padding: 12px 18px; border-radius: 16px; background: #ef4444; color: white; text-decoration: none; font-weight: 700; }
+        .page-shell { max-width: 1280px; margin: 0 auto; padding: 40px; }
+        .page-title { margin-bottom: 22px; }
+        .page-title h1 { margin: 0; font-size: 32px; }
+        .page-title p { color: var(--muted); margin-top: 10px; line-height: 1.75; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin: 28px 0; }
+        .stat-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 18px 40px rgba(15,23,42,0.08); padding: 26px; }
+        .stat-card h3 { margin: 0 0 10px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+        .stat-card strong { display: block; font-size: 34px; line-height: 1; }
+        .criteria { display: grid; gap: 16px; margin-bottom: 32px; }
+        .criteria-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+        .criteria-card p { margin: 0; color: var(--muted); }
+        .section-title { margin: 0 0 18px; font-size: 22px; font-weight: 800; }
+        table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: 0 18px 40px rgba(15,23,42,0.08); }
+        th, td { padding: 18px 20px; text-align: left; }
+        th { background: #f1f5f9; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+        tr:not(:last-child) { border-bottom: 1px solid var(--border); }
+        .rank-badge { padding: 8px 12px; border-radius: 999px; background: var(--primary); color: white; font-size: 13px; font-weight: 700; }
+        .status-high { color: var(--success); font-weight: 700; }
+        .status-low { color: var(--danger); font-weight: 700; }
+        .reason-list { display: grid; gap: 8px; }
+        .reason-item { color: var(--danger); font-size: 13px; }
+        .back-btn { display: inline-block; margin-top: 32px; padding: 14px 22px; border-radius: 16px; background: var(--primary); color: white; text-decoration: none; font-weight: 700; }
+        @media (max-width: 900px) { .stats { grid-template-columns: 1fr; } }
     </style>
 </head>
-
 <body>
-
-<div class="navbar">
-    <h1>TalentIQ HR</h1>
-    <a href="/logout" class="logout-btn">Logout</a>
-</div>
-
-<div class="container">
-
-    <div class="header">
-        <h2>Screening Results – {{ job_title }}</h2>
-        <p>AI-driven candidate evaluation & intelligent shortlisting</p>
-    </div>
-
-    <!-- STATS -->
-    {% set total = shortlisted|length + rejected|length %}
-    {% set rate = (shortlisted|length / total * 100) if total > 0 else 0 %}
-
-    <div class="stats">
-        <div class="stat-card">
-            <h3>Total Resumes</h3>
-            <div class="value blue">{{ total }}</div>
+    <header>
+        <div class="brand">TalentIQ HR</div>
+        <a class="logout-btn" href="/logout">Logout</a>
+    </header>
+    <main class="page-shell">
+        <section class="page-title">
+            <h1>Screening Results</h1>
+            <p>Review the candidates analyzed against <strong>{{ job_title }}</strong> and see the overall shortlist performance at a glance.</p>
+        </section>
+        <div class="stats">
+            <div class="stat-card"><h3>Total Resumes</h3><strong>{{ total }}</strong></div>
+            <div class="stat-card"><h3>Shortlisted</h3><strong class="status-high">{{ shortlisted|length }}</strong></div>
+            <div class="stat-card"><h3>Rejected</h3><strong class="status-low">{{ rejected|length }}</strong></div>
+            <div class="stat-card"><h3>Shortlist Rate</h3><strong>{{ rate|round(1) }}%</strong></div>
         </div>
-
-        <div class="stat-card">
-            <h3>Shortlisted</h3>
-            <div class="value green">{{ shortlisted|length }}</div>
+        <div class="criteria">
+            <div class="criteria-card"><p><strong>Minimum Score:</strong> {{ min_score }}%</p></div>
+            <div class="criteria-card"><p><strong>Minimum Experience:</strong> {{ min_exp }} years</p></div>
+            <div class="criteria-card"><p><strong>Mandatory Skills:</strong> {% if mandatory_skills %}{{ mandatory_skills|join(', ') }}{% else %}None{% endif %}</p></div>
         </div>
-
-        <div class="stat-card">
-            <h3>Rejected</h3>
-            <div class="value red">{{ rejected|length }}</div>
-        </div>
-
-        <div class="stat-card">
-            <h3>Shortlist Rate</h3>
-            <div class="value">{{ rate|round(1) }}%</div>
-        </div>
-    </div>
-
-    <!-- CRITERIA -->
-    <div class="criteria-box">
-        <div><b>Minimum Score:</b> {{ min_score }}%</div>
-        <div><b>Minimum Experience:</b> {{ min_exp }} years</div>
-        <div><b>Mandatory Skills:</b>
-            {% if mandatory_skills %}
-                {{ mandatory_skills | join(", ") }}
+        <section>
+            <div class="section-title">Shortlisted Candidates</div>
+            {% if shortlisted %}
+                <table>
+                    <thead>
+                        <tr><th>Rank</th><th>Resume</th><th>Score</th><th>Experience</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for c in shortlisted %}
+                            <tr><td><span class="rank-badge">#{{ loop.index }}</span></td><td>{{ c.filename }}</td><td class="status-high">{{ c.score }}%</td><td>{{ c.experience }} years</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% else %}
-                None
+                <p style="color: var(--muted);">No candidates were shortlisted for this job.</p>
             {% endif %}
-        </div>
-    </div>
-
-    <!-- SHORTLISTED -->
-    <div class="section-title">🏆 Shortlisted Candidates</div>
-{% if shortlisted %}
-<div style="background:#dcfce7;padding:18px;border-radius:14px;margin-bottom:20px;">
-    <b>Top Candidate:</b> {{ shortlisted[0].filename }}
-    (Score: {{ shortlisted[0].score }}%)
-</div>
-{% endif %}
-
-    {% if shortlisted %}
-    <table>
-        <tr>
-            <th>Rank</th>
-            <th>Resume</th>
-            <th>Score</th>
-            <th>Experience</th>
-        </tr>
-
-        {% for c in shortlisted %}
-        <tr>
-            <td><span class="rank-badge">#{{ loop.index }}</span></td>
-            <td>{{ c.filename }}</td>
-            <td class="score-high">{{ c.score }}%</td>
-            <td>{{ c.experience }} years</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-        <p>No candidates shortlisted.</p>
-    {% endif %}
-
-    <!-- REJECTED -->
-    <div class="section-title">🚫 Rejected Candidates</div>
-
-    {% if rejected %}
-    <table>
-        <tr>
-            <th>Resume</th>
-            <th>Score</th>
-            <th>Experience</th>
-            <th>Reason</th>
-        </tr>
-
-        {% for c in rejected %}
-        <tr>
-            <td>{{ c.filename }}</td>
-            <td class="score-low">{{ c.score }}%</td>
-            <td>{{ c.experience }} years</td>
-            <td>
-                {% for r in c.reasons %}
-                    <div class="reason">{{ r }}</div>
-                {% endfor %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-        <p>No rejected candidates.</p>
-    {% endif %}
-
-    <a href="/hr" class="back-btn">← Back to Dashboard</a>
-
-</div>
-
+        </section>
+        <section style="margin-top: 40px;">
+            <div class="section-title">Rejected Candidates</div>
+            {% if rejected %}
+                <table>
+                    <thead>
+                        <tr><th>Resume</th><th>Score</th><th>Experience</th><th>Reasons</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for c in rejected %}
+                            <tr>
+                                <td>{{ c.filename }}</td>
+                                <td class="status-low">{{ c.score }}%</td>
+                                <td>{{ c.experience }} years</td>
+                                <td class="reason-list">{% for r in c.reasons %}<div class="reason-item">{{ r }}</div>{% endfor %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="color: var(--muted);">No candidates were rejected for this screening run.</p>
+            {% endif %}
+        </section>
+        <a href="/hr" class="back-btn">Back to Dashboard</a>
+    </main>
 </body>
 </html>

@@ -1,219 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Upload Resume | Candidate Portal</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Resume | TalentIQ</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: "Inter", "Segoe UI", sans-serif;
-            background: #f4f7fb;
-            display: flex;
+        :root {
+            --bg: #eef2ff;
+            --surface: #ffffff;
+            --primary: #2563eb;
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #d1d5db;
+            --radius: 24px;
         }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 260px;
-            background: linear-gradient(to bottom, #1e3a8a, #2563eb);
-            min-height: 100vh;
-            padding: 30px 20px;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .sidebar-top h2 {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 20px;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 14px 15px;
-            margin-bottom: 12px;
-            text-decoration: none;
-            color: white;
-            border-radius: 12px;
-        }
-
-        .sidebar a:hover {
-            background: rgba(255,255,255,0.15);
-        }
-
-        .user-box {
-            font-size: 13px;
-            margin-top: 20px;
-            opacity: 0.9;
-        }
-
-        .logout-btn {
-            padding: 10px;
-            background: #ef4444;
-            text-align: center;
-            border-radius: 10px;
-            text-decoration: none;
-            color: white;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        /* ===== MAIN ===== */
-        .main {
-            flex: 1;
-            padding: 50px;
-        }
-
-        .header {
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 30px;
-            font-weight: 800;
-        }
-
-        .header p {
-            margin-top: 6px;
-            font-size: 15px;
-            color: #555;
-        }
-
-        .job-title {
-            margin-top: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-        /* ===== UPLOAD CARD ===== */
-        .upload-card {
-            background: white;
-            max-width: 650px;
-            padding: 35px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            transition: 0.25s;
-        }
-
-        .upload-box {
-            border: 2px dashed #cbd5e1;
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
-            background: #f9fbff;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .upload-box:hover {
-            border-color: #2563eb;
-            background: #eff6ff;
-        }
-
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Inter, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+        .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+        .sidebar { background: linear-gradient(180deg, #1e3a8a, #2563eb); color: white; padding: 32px 22px; display: flex; flex-direction: column; justify-content: space-between; }
+        .sidebar h2 { font-size: 22px; margin-bottom: 24px; }
+        .sidebar a { margin-bottom: 14px; color: white; text-decoration: none; font-weight: 600; padding: 12px 14px; border-radius: 14px; display: block; }
+        .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.16); }
+        .sidebar .logout-btn { margin-top: 20px; padding: 12px; border-radius: 14px; background: #ef4444; text-align: center; color: white; text-decoration: none; }
+        .main { padding: 42px; }
+        .panel { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 18px 40px rgba(15,23,42,0.08); padding: 36px; max-width: 720px; }
+        .panel h1 { margin: 0 0 10px; font-size: 32px; }
+        .panel p { color: var(--muted); line-height: 1.85; margin-bottom: 26px; }
+        .upload-box { border: 2px dashed #cbd5e1; border-radius: 24px; padding: 36px; text-align: center; background: #f8fafc; cursor: pointer; transition: background 0.2s, border-color 0.2s; }
+        .upload-box:hover { background: white; border-color: var(--primary); }
+        .upload-box label { font-size: 16px; font-weight: 700; color: var(--primary); cursor: pointer; }
+        .upload-box small { display: block; margin-top: 12px; color: var(--muted); }
         input[type="file"] { display: none; }
-
-        .upload-box label {
-            font-size: 15px;
-            font-weight: 650;
-            color: #2563eb;
-            cursor: pointer;
-        }
-
-        .file-name {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #333;
-        }
-
-        button {
-            width: 100%;
-            margin-top: 20px;
-            padding: 14px;
-            border: none;
-            border-radius: 14px;
-            background: linear-gradient(to right, #2563eb, #1d4ed8);
-            color: white;
-            font-size: 15px;
-            font-weight: 650;
-            cursor: pointer;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .note {
-            margin-top: 18px;
-            font-size: 13px;
-            color: #666;
-        }
+        .actions { margin-top: 28px; display: flex; gap: 18px; flex-wrap: wrap; }
+        .actions a, .actions button { border-radius: 16px; text-decoration: none; border: none; padding: 14px 24px; font-weight: 700; cursor: pointer; }
+        .actions button { width: min(100%, 240px); background: linear-gradient(135deg, var(--primary), #1d4ed8); color: white; }
+        .note { margin-top: 22px; color: var(--muted); font-size: 14px; }
+        @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
     </style>
 </head>
-
 <body>
-
-<div class="sidebar">
-    <div class="sidebar-top">
-        <h2>Candidate Portal</h2>
-        <a href="/candidate">🏠 Dashboard</a>
-        <a href="/candidate/upload">📄 Upload Resume</a>
-        <a href="/candidate/create">✍️ Build Resume</a>
-
-        <div class="user-box">
-            Logged in as <b>{{ session['user'] }}</b>
-        </div>
-    </div>
-
-    <a href="/logout" class="logout-btn">Logout</a>
-</div>
-
-
-<div class="main">
-
-    <div class="header">
-        <h1>Upload Your Resume</h1>
-        <p>Upload your resume to generate an AI match score.</p>
-
-        {% if job_title %}
-            <div class="job-title">
-                Target Role: {{ job_title }}
+    <div class="layout">
+        <aside class="sidebar">
+            <div>
+                <h2>Candidate Portal</h2>
+                <a href="/candidate">Dashboard</a>
+                <a href="/candidate/upload" class="active">Upload Resume</a>
+                <a href="/candidate/create">Build Resume</a>
             </div>
-        {% endif %}
+            <a href="/logout" class="logout-btn">Logout</a>
+        </aside>
+        <main class="main">
+            <section class="panel">
+                <h1>Upload Your Resume</h1>
+                <p>Upload a PDF, DOCX, or TXT resume to generate a modern candidate score against your selected job description.</p>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="upload-box">
+                        <label for="resume">Select Resume File</label>
+                        <small>Supported formats: PDF, DOCX, TXT</small>
+                        <input id="resume" type="file" name="resume" required>
+                    </div>
+                    <div class="actions">
+                        <button type="submit">Upload & Preview</button>
+                    </div>
+                </form>
+                <p class="note">Once uploaded, you can preview your resume and run AI-driven matching against the target job.</p>
+            </section>
+        </main>
     </div>
-
-    <div class="upload-card">
-
-        <form method="POST" enctype="multipart/form-data">
-
-            <div class="upload-box">
-                <label for="resume">Click to Upload Resume File</label>
-                <input type="file" id="resume" name="resume" required>
-                <div class="file-name" id="fileName"></div>
-            </div>
-
-            <button type="submit">
-                Upload & Preview →
-            </button>
-
-        </form>
-
-        <p class="note">
-            Supported formats: PDF, DOCX, TXT.
-        </p>
-
-    </div>
-
-</div>
-
-<script>
-document.getElementById("resume").addEventListener("change", function() {
-    const fileName = this.files[0]?.name || "";
-    document.getElementById("fileName").innerText = fileName;
-});
-</script>
-
+    <script>
+        document.getElementById('resume').addEventListener('change', function() {
+            const label = document.querySelector('.upload-box label');
+            if (this.files[0]) label.textContent = this.files[0].name;
+        });
+    </script>
 </body>
 </html>

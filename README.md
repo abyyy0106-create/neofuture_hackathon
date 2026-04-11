@@ -59,6 +59,15 @@ python -m spacy download en_core_web_sm
 
 ## Usage
 
+### Set environment variables
+
+Before running the app, set the MongoDB URI and optional Flask secret key:
+
+```bash
+export MONGO_URI="mongodb+srv://<user>:<password>@<cluster>/<database>?retryWrites=true&w=majority"
+export FLASK_SECRET_KEY="your_flask_secret_here"
+```
+
 ### Start the Server
 
 ```bash
@@ -120,19 +129,6 @@ Match multiple resumes against a job description.
 - sentence-transformers: AI semantic similarity
 - spaCy: Natural language processing
 - torch: Machine learning framework
-
-## Testing
-
-Run the test script to see the system in action:
-
-```bash
-python test_system.py
-```
-
-This will demonstrate:
-- Resume parsing capabilities
-- Semantic matching against a job description
-- Match scoring and recommendations
 
 ## Example Output
 

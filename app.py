@@ -1,9 +1,13 @@
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
+
 from flask import Flask, render_template, request, redirect, session, send_file
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from functools import wraps
 
+import os
 import re
 import io
 import pdfplumber
@@ -30,16 +34,40 @@ def sbert_similarity(text1: str, text2: str) -> float:
 
 >>>>>>> 4f24208 (Added JD)
 app = Flask(__name__)
-app.secret_key = "final_secret_key"
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "final_secret_key")
 
 
 # ===================== MongoDB Setup =====================
-app.config["MONGO_URI"] = "mongodb+srv://resume_user:fcritru12345@cluster0.vpqwj7a.mongodb.net/ai_resume_db?retryWrites=true&w=majority"
-mongo = PyMongo(app)
+mongo_uri = os.environ.get("MONGO_URI")
+mongo = None
 
-users = mongo.db.users
-jds = mongo.db.job_descriptions
-resumes = mongo.db.resumes   # ✅ ADDED
+if mongo_uri and mongo_uri != "mongodb+srv://test_user:test_password@test-cluster.mongodb.net/talentiq_test?retryWrites=true&w=majority":
+    # Only try to connect if a real URI is provided
+    app.config["MONGO_URI"] = mongo_uri
+    try:
+        mongo = PyMongo(app)
+        users = mongo.db.users
+        jds = mongo.db.job_descriptions
+        resumes = mongo.db.resumes
+        print("✓ MongoDB connected successfully")
+    except Exception as e:
+        print(f"⚠️  MongoDB connection failed: {e}")
+        print("⚠️  App will run in limited mode. Update .env with real MongoDB credentials and restart.")
+        mongo = None
+else:
+    print("⚠️  MongoDB credentials not configured. Update .env with real credentials.")
+    print("⚠️  App will run in limited UI-only mode.")
+    users = None
+    jds = None
+    resumes = None
+
+
+# ===================== MongoDB Check =====================
+def require_mongodb():
+    """Check if MongoDB is connected, return error page if not."""
+    if mongo is None or users is None:
+        return "❌ MongoDB not configured. Please add MONGO_URI credentials to .env and restart the app.", 503
+    return None
 
 
 # ===================== ROLE PROTECTION =====================
@@ -90,14 +118,19 @@ def load_file(file):
 
 
 def load_skills():
-    s = pd.read_excel("skills_onet.xlsx")
-    t = pd.read_excel("Technology Skills.xlsx")
+    try:
+        s = pd.read_excel("skills_onet.xlsx")
+        t = pd.read_excel("Technology Skills.xlsx")
 
-    s = s[(s["Scale Name"] == "Importance") & (s["Data Value"] >= 3)]
+        s = s[(s["Scale Name"] == "Importance") & (s["Data Value"] >= 3)]
 
-    return set(s["Element Name"].str.lower()).union(
-        set(t["Example"].str.lower())
-    )
+        return set(s["Element Name"].str.lower()).union(
+            set(t["Example"].str.lower())
+        )
+    except Exception as e:
+        print(f"⚠️  Could not load skills database: {e}")
+        print("⚠️  Skill matching will use limited mode")
+        return set()  # Return empty set as fallback
 
 
 SKILL_DB = load_skills()
@@ -506,14 +539,31 @@ def candidate_check():
 
     t, s, f, matched, missing = score_resume(resume, jd_doc["jd"])
 
-    session["missing_skills"] = missing
+    focus_skills = missing[:2]
+    session["missing_skills"] = focus_skills
     session["last_score"] = f
 
-    suggestions = []
-    if missing:
-        suggestions.append("Add these missing skills: " + ", ".join(missing[:6]))
-    suggestions.append("Rewrite your summary to match the job title.")
-    suggestions.append("Add measurable impact in projects.")
+    current_trends = []
+    if focus_skills:
+        current_trends.append(
+            f"Deepen your practical knowledge of modern {focus_skills[0]} workflows and enterprise-grade implementation patterns."
+        )
+        if len(focus_skills) > 1:
+            current_trends.append(
+                f"Explore current tools, frameworks, and automation strategies around {focus_skills[1]}."
+            )
+        current_trends.append(
+            "Emphasize measurable outcomes, collaboration, and the business value of your technical contributions."
+        )
+        current_trends.append(
+            "Focus on real project experience, not just keyword lists, for stronger ATS and recruiter impact."
+        )
+    else:
+        current_trends = [
+            "Continue highlighting modern workflows, measurable results, and team collaboration.",
+            "Ensure your resume reflects enterprise readiness, impact, and scalability.",
+            "Use concise project narratives that connect your skills to business outcomes."
+        ]
 
     return render_template(
         "candidate_result.html",
@@ -522,8 +572,8 @@ def candidate_check():
         semantic=s,
         final=f,
         matched=matched,
-        missing=missing,
-        suggestions=suggestions
+        focus_skills=focus_skills,
+        current_trends=current_trends
     )
 
 

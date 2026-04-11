@@ -1,369 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>HR Dashboard</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard | TalentIQ</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --primary: #2563eb;
+            --accent: #1d4ed8;
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #e2e8f0;
+            --radius: 24px;
         }
-
-        body {
-            font-family: "Inter", "Segoe UI", sans-serif;
-            background: #f7f9fc;
-            color: #222;
-        }
-
-        /* ===== NAVBAR ===== */
-        .navbar {
-            width: 100%;
-            background: white;
-            padding: 18px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .nav-left h1 {
-            font-size: 22px;
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-        .nav-left span {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .user-info {
-            font-size: 14px;
-            color: #555;
-        }
-
-        .user-info b {
-            color: #2563eb;
-            font-weight: 600;
-        }
-
-        .logout-btn {
-            text-decoration: none;
-            background: #ef4444;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            transition: 0.25s ease;
-        }
-
-        .logout-btn:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(220, 38, 38, 0.25);
-        }
-
-        /* ===== DASHBOARD CONTAINER ===== */
-        .container {
-            width: 90%;
-            max-width: 1150px;
-            margin: auto;
-            padding: 50px 0;
-        }
-
-        /* ===== PAGE HEADER ===== */
-        .page-header {
-            margin-bottom: 40px;
-        }
-
-        .page-header h2 {
-            font-size: 32px;
-            font-weight: 700;
-            color: #111;
-        }
-
-        .page-header p {
-            margin-top: 8px;
-            font-size: 15px;
-            color: #555;
-        }
-
-        /* ===== GRID LAYOUT ===== */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
-            gap: 25px;
-        }
-
-        /* ===== CARD ===== */
-        .card {
-            background: white;
-            border-radius: 18px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
-            transition: 0.25s ease;
-            border: 1px solid transparent;
-        }
-
-        .card:hover {
-            transform: translateY(-6px);
-            border: 1px solid #dbeafe;
-            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.12);
-        }
-
-        .card h3 {
-            font-size: 20px;
-            font-weight: 650;
-            margin-bottom: 10px;
-        }
-
-        .card p {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 18px;
-            line-height: 1.5;
-        }
-
-        /* ===== INPUT ===== */
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 12px;
-            border: 1px solid #d1d5db;
-            font-size: 14px;
-        }
-
-        /* ===== UPLOAD BOX ===== */
-        .upload-box {
-            border: 2px dashed #cbd5e1;
-            padding: 25px;
-            border-radius: 14px;
-            text-align: center;
-            background: #f9fbff;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .upload-box:hover {
-            border-color: #2563eb;
-            background: #eff6ff;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .upload-box label {
-            display: block;
-            font-size: 14px;
-            color: #2563eb;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .upload-box small {
-            display: block;
-            margin-top: 6px;
-            color: #777;
-            font-size: 12px;
-        }
-
-        /* ===== BUTTONS ===== */
-        button {
-            width: 100%;
-            margin-top: 18px;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(to right, #2563eb, #1d4ed8);
-            color: white;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.25s;
-        }
-
-        button:hover {
-            opacity: 0.9;
-            transform: scale(1.01);
-        }
-
-        /* ===== JOB LIST ===== */
-        .job-list {
-            margin-top: 20px;
-        }
-
-        .job-item {
-            padding: 14px;
-            border-radius: 12px;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .job-item b {
-            font-size: 14px;
-            color: #111;
-        }
-
-        .delete-btn {
-            font-size: 13px;
-            text-decoration: none;
-            color: white;
-            background: #dc2626;
-            padding: 7px 12px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .delete-btn:hover {
-            background: #b91c1c;
-        }
-
-        /* ===== DROPDOWN ===== */
-        select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #d1d5db;
-            font-size: 14px;
-            margin-top: 10px;
-        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Inter, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 26px 40px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+        .brand { font-size: 26px; font-weight: 900; color: var(--primary); }
+        .user-chip { display: inline-flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 16px; background: #eff6ff; color: var(--text); }
+        .logout-btn { padding: 12px 18px; border-radius: 16px; background: #ef4444; color: white; text-decoration: none; font-weight: 700; }
+        .page-shell { max-width: 1280px; margin: 0 auto; padding: 40px 40px 60px; }
+        .hero { display: grid; grid-template-columns: 1fr 280px; gap: 32px; margin-bottom: 40px; }
+        .hero h1 { margin: 0; font-size: 34px; }
+        .hero p { margin-top: 14px; color: var(--muted); line-height: 1.8; }
+        .cta-box { padding: 28px; border-radius: var(--radius); background: #ffffff; box-shadow: 0 16px 40px rgba(15,23,42,0.08); border: 1px solid var(--border); }
+        .cta-box h3 { margin: 0 0 10px; font-size: 18px; }
+        .cta-box p { margin: 0 0 16px; color: var(--muted); }
+        .cta-box a { display: inline-block; padding: 12px 18px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; text-decoration: none; font-weight: 700; }
+        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; }
+        .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 30px; box-shadow: 0 18px 40px rgba(15,23,42,0.08); }
+        .card h2 { margin: 0 0 18px; font-size: 20px; }
+        .card p { color: var(--muted); line-height: 1.8; }
+        .form-group { margin-top: 16px; display: grid; gap: 14px; }
+        input, select { width: 100%; padding: 16px 18px; border-radius: 16px; border: 1px solid var(--border); font-size: 15px; }
+        .upload-box { border: 2px dashed #cbd5e1; border-radius: 24px; padding: 30px; background: #f8fbff; text-align: center; cursor: pointer; transition: all 0.2s ease; }
+        .upload-box:hover { border-color: var(--primary); background: white; }
+        .upload-box label { font-weight: 700; color: var(--primary); display: block; margin-bottom: 8px; }
+        .upload-box small { color: var(--muted); font-size: 13px; }
+        .job-list { margin-top: 26px; display: grid; gap: 14px; }
+        .job-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-radius: 18px; border: 1px solid #e2e8f0; background: #f8fafc; }
+        .job-item b { color: var(--text); }
+        .job-item a { padding: 10px 14px; border-radius: 14px; background: #ef4444; color: white; text-decoration: none; font-weight: 700; }
+        .button { width: 100%; margin-top: 18px; padding: 16px; border: none; border-radius: 18px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; font-size: 15px; font-weight: 700; cursor: pointer; }
+        @media (max-width: 980px) { .hero { grid-template-columns: 1fr; } .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
-
 <body>
-
-    <!-- NAVBAR -->
-    <div class="navbar">
-        <div class="nav-left">
-            <h1>TalentIQ HR</h1>
-            <span>AI Resume Screening Dashboard</span>
-        </div>
-
-        <div class="nav-right">
-            <div class="user-info">
-                Logged in as <b>{{ session['user'] }}</b>
+    <header>
+        <div class="brand">TalentIQ HR</div>
+        <div class="user-chip"><span>Signed in as <strong>{{ session['user'] }}</strong></span></div>
+        <a class="logout-btn" href="/logout">Logout</a>
+    </header>
+    <main class="page-shell">
+        <section class="hero">
+            <div>
+                <h1>HR Dashboard</h1>
+                <p>Upload job descriptions, define score criteria, and screen resumes quickly with a premium ATS-ready interface.</p>
             </div>
-            <a href="/logout" class="logout-btn">Logout</a>
-        </div>
-    </div>
-
-
-    <div class="container">
-
-        <div class="page-header">
-            <h2>HR Dashboard</h2>
-            <p>Upload multiple job openings, manage descriptions, and shortlist candidates instantly.</p>
-        </div>
-
+            <aside class="cta-box">
+                <h3>Quick Actions</h3>
+                <p>Upload a new job description or launch a resume analysis workflow for your selected opening.</p>
+                <a href="#upload">Upload JD</a>
+            </aside>
+        </section>
         <div class="grid">
-
-            <!-- JOB DESCRIPTION MANAGEMENT -->
-            <div class="card">
-                <h3>📌 Job Description Management</h3>
-                <p>Create and manage multiple job openings.</p>
-
+            <section class="card" id="upload">
+                <h2>Job Description Management</h2>
+                <p>Create job openings with minimum scoring and experience requirements for smarter candidate evaluation.</p>
                 <form method="post" action="/hr/upload_jd" enctype="multipart/form-data">
-
-                    <input type="text" name="job_title"
-                        placeholder="Enter Job Title (e.g., Software Engineer)"
-                            required>
-
-    <!-- NEW: Minimum Score -->
-    <input type="number" name="min_score"
-           placeholder="Minimum AI Score (e.g., 70)"
-           min="0" max="100"
-           required>
-
-    <!-- NEW: Minimum Experience -->
-    <input type="number" name="min_exp"
-           placeholder="Minimum Experience (Years)"
-           min="0">
-
-    <!-- NEW: Mandatory Skills -->
-    <input type="text" name="mandatory_skills"
-           placeholder="Mandatory Skills (comma separated, e.g., python, sql, machine learning)">
-
-    <small style="display:block; margin-bottom:10px; color:#666;">
-    Candidates missing these skills will be automatically rejected.
-</small>
-       
-    <div class="upload-box">
-        <label for="jd">Click to Upload JD File</label>
-        <small>PDF or DOCX supported</small>
-        <input type="file" id="jd" name="jd" required>
-    </div>
-
-    <button>Upload Job Opening</button>
-</form>
-
+                    <div class="form-group">
+                        <input type="text" name="job_title" placeholder="Job title (e.g., Senior Software Engineer)" required>
+                        <input type="number" name="min_score" placeholder="Minimum score (0-100)" min="0" max="100" required>
+                        <input type="number" name="min_exp" placeholder="Minimum experience (years)" min="0">
+                        <input type="text" name="mandatory_skills" placeholder="Mandatory skills (comma separated)">
+                    </div>
+                    <div class="upload-box">
+                        <label for="jd">Upload Job Description</label>
+                        <small>Supports PDF or DOCX files.</small>
+                        <input type="file" id="jd" name="jd" required>
+                    </div>
+                    <button class="button" type="submit">Upload Job Opening</button>
+                </form>
                 <div class="job-list">
-                    <h4 style="margin-top:25px; font-size:15px;">Uploaded Jobs:</h4>
-
                     {% if jds %}
                         {% for job in jds %}
                             <div class="job-item">
                                 <b>{{ job.title }}</b>
-                                <a class="delete-btn"
-                                   href="/hr/delete_jd/{{ job._id }}"
-                                   onclick="return confirm('Delete this job opening?')">
-                                   Delete
-                                </a>
+                                <a href="/hr/delete_jd/{{ job._id }}" onclick="return confirm('Delete this job opening?')">Delete</a>
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p style="margin-top:10px; font-size:13px; color:#666;">
-                            No job openings uploaded yet.
-                        </p>
+                        <p style="color: var(--muted);">No job descriptions uploaded yet.</p>
                     {% endif %}
                 </div>
-            </div>
-
-            <!-- RESUME ANALYSIS -->
-            <div class="card">
-                <h3>🤖 AI Resume Screening</h3>
-                <p>Select a job opening, upload resumes, and run AI screening.</p>
-
+            </section>
+            <section class="card">
+                <h2>Resume Screening</h2>
+                <p>Select a job and upload candidate resumes for batch AI screening.</p>
                 <form method="post" action="/hr/analyze" enctype="multipart/form-data">
-                    <label style="font-size:14px; font-weight:600;">
-                        Select Job Opening:
-                    </label>
-
-                    <select name="jd_id" required>
-                        <option value="">-- Choose Job Role --</option>
-                        {% for job in jds %}
-                            <option value="{{ job._id }}">
-                                {{ job.title }}
-                            </option>
-                        {% endfor %}
-                    </select>
-
-                    <div class="upload-box" style="margin-top:18px;">
-                        <label for="resumes">Click to Upload Candidate Resumes</label>
-                        <small>Multiple files allowed</small>
+                    <div class="form-group">
+                        <select name="jd_id" required>
+                            <option value="">Select job opening</option>
+                            {% for job in jds %}
+                                <option value="{{ job._id }}">{{ job.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="upload-box">
+                        <label for="resumes">Upload Resumes</label>
+                        <small>Multiple files accepted</small>
                         <input type="file" id="resumes" name="resumes" multiple required>
                     </div>
-
-                    <button>Run AI Screening</button>
+                    <button class="button" type="submit">Analyze Resumes</button>
                 </form>
-            </div>
-
+            </section>
         </div>
-    </div>
-
+    </main>
 </body>
 </html>

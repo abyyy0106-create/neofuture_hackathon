@@ -1,270 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>AI Match Result | Candidate Portal</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Result | TalentIQ</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: "Inter", "Segoe UI", sans-serif;
-            background: #f4f7fb;
-            display: flex;
+        :root {
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --primary: #2563eb;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #e2e8f0;
+            --radius: 24px;
         }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 260px;
-            background: linear-gradient(to bottom, #1e3a8a, #2563eb);
-            min-height: 100vh;
-            padding: 30px 20px;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .sidebar h2 {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 25px;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 14px 15px;
-            margin-bottom: 12px;
-            text-decoration: none;
-            color: white;
-            border-radius: 12px;
-        }
-
-        .sidebar a:hover {
-            background: rgba(255,255,255,0.15);
-        }
-
-        .active {
-            background: rgba(255,255,255,0.25);
-        }
-
-        .user-box {
-            font-size: 13px;
-            margin-top: 20px;
-            opacity: 0.9;
-        }
-
-        .logout-btn {
-            padding: 10px;
-            background: #ef4444;
-            text-align: center;
-            border-radius: 10px;
-            text-decoration: none;
-            color: white;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        /* ===== MAIN ===== */
-        .main { flex: 1; padding: 50px; }
-
-        .result-card {
-            background: white;
-            max-width: 1000px;
-            padding: 45px;
-            border-radius: 24px;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.08);
-        }
-
-        .job-title {
-            font-size: 18px;
-            color: #2563eb;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        /* ===== SCORE RING ===== */
-        .score-ring {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-
-        .score-inner {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            background: white;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .score-inner h2 {
-            font-size: 42px;
-            font-weight: 900;
-        }
-
-        /* ===== TAGS ===== */
-        .tag-box {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .tag {
-            padding: 8px 14px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 650;
-        }
-
-        .matched { background: #dcfce7; color: #166534; }
-        .missing { background: #fee2e2; color: #991b1b; }
-
-        .empty-note {
-            margin-top: 8px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        /* ===== BUTTONS ===== */
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 40px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            flex: 1;
-            text-align: center;
-            padding: 15px;
-            border-radius: 14px;
-            font-weight: 800;
-            text-decoration: none;
-            color: white;
-        }
-
-        .btn-dashboard { background: linear-gradient(to right, #2563eb, #1d4ed8); }
-        .btn-fix { background: linear-gradient(to right, #f59e0b, #d97706); }
-        .btn-edit { background: linear-gradient(to right, #16a34a, #15803d); }
-        .btn-download { background: linear-gradient(to right, #6366f1, #4f46e5); }
-
-        .interpretation {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Inter, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+        .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+        .sidebar { background: linear-gradient(180deg, #1e3a8a, #2563eb); color: white; padding: 32px 22px; display: flex; flex-direction: column; justify-content: space-between; }
+        .sidebar h2 { font-size: 22px; margin-bottom: 24px; }
+        .sidebar a { margin-bottom: 14px; color: white; text-decoration: none; font-weight: 600; padding: 12px 14px; border-radius: 14px; display: block; }
+        .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.16); }
+        .sidebar .logout-btn { margin-top: 20px; padding: 12px; border-radius: 14px; background: #ef4444; text-align: center; color: white; text-decoration: none; }
+        .main { padding: 42px; }
+        .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 18px 40px rgba(15,23,42,0.08); padding: 36px; max-width: 920px; }
+        .job-title { margin: 0 0 10px; font-size: 28px; font-weight: 800; }
+        .summary-text { color: var(--muted); line-height: 1.85; margin-bottom: 28px; }
+        .score-block { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; margin-bottom: 28px; }
+        .score-badge { width: 170px; height: 170px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, rgba(37,99,235,0.15), rgba(37,99,235,0.06)); }
+        .score-badge strong { font-size: 42px; color: var(--text); }
+        .score-text { line-height: 1.7; }
+        .score-text h3 { margin: 0; font-size: 18px; font-weight: 800; }
+        .score-text p { margin-top: 8px; color: var(--muted); }
+        .tag-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+        .tag { padding: 12px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; background: #eff6ff; color: var(--primary); }
+        .panel-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 26px; }
+        .panel-card { background: #ffffff; border: 1px solid var(--border); border-radius: 22px; padding: 26px; }
+        .panel-card h4 { margin: 0 0 14px; font-size: 18px; font-weight: 800; }
+        .panel-card p { color: var(--muted); line-height: 1.8; }
+        .trend-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+        .trend-list li { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 18px; padding: 18px; color: var(--text); line-height: 1.75; }
+        .button-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 34px; }
+        .btn { padding: 14px 18px; border-radius: 16px; text-decoration: none; font-weight: 700; color: white; min-width: 180px; display: inline-flex; justify-content: center; }
+        .btn-back { background: #64748b; }
+        .btn-action { background: linear-gradient(135deg, var(--primary), #1d4ed8); }
+        .btn-secondary { background: linear-gradient(135deg, var(--success), #15803d); }
+        .focus-pill { display: inline-flex; align-items: center; gap: 8px; background: #eff6ff; color: var(--primary); padding: 10px 14px; border-radius: 999px; font-weight: 700; margin-bottom: 16px; }
+        @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .panel-rows { grid-template-columns: 1fr; } .score-block { grid-template-columns: 1fr; justify-items: center; } }
     </style>
 </head>
-
 <body>
-
-<div class="sidebar">
-    <div>
-        <h2>Candidate Portal</h2>
-        <a href="/candidate">🏠 Dashboard</a>
-        <a href="/candidate/upload">📄 Upload Resume</a>
-        <a href="/candidate/create">✍️ Build Resume</a>
-
-        <div class="user-box">
-            Logged in as <b>{{ session['user'] }}</b>
-        </div>
-    </div>
-
-    <a href="/logout" class="logout-btn">Logout</a>
-</div>
-
-
-<div class="main">
-
-    <div class="result-card">
-
-        <div class="job-title">
-            Match Result for: {{ job_title }}
-        </div>
-
-        {% set ring_color =
-            "#16a34a" if final >= 80
-            else "#f59e0b" if final >= 60
-            else "#dc2626"
-        %}
-
-        <div class="score-ring"
-             style="background: conic-gradient(
-                 {{ ring_color }} {{ final }}%,
-                 #e5e7eb 0
-             );">
-
-            <div class="score-inner">
-                <h2>{{ final }}%</h2>
-                <p>Match Score</p>
+    <div class="layout">
+        <aside class="sidebar">
+            <div>
+                <h2>Candidate Portal</h2>
+                <a href="/candidate">Dashboard</a>
+                <a href="/candidate/upload">Upload Resume</a>
+                <a href="/candidate/create">Build Resume</a>
+                <div class="user-box">Logged in as <strong>{{ session['user'] }}</strong></div>
             </div>
-        </div>
-
-        <div class="interpretation">
-            {% if final >= 80 %}
-                🔥 Excellent match! You're highly aligned with this role.
-            {% elif final >= 60 %}
-                👍 Moderate match. Small improvements can boost your chances.
-            {% else %}
-                ⚠️ Significant gaps detected. Consider improving your resume.
-            {% endif %}
-        </div>
-
-        <!-- MATCHED -->
-        <h3>✅ Matched Skills</h3>
-        <div class="tag-box">
-            {% if matched %}
-                {% for s in matched[:12] %}
-                    <span class="tag matched">{{ s }}</span>
-                {% endfor %}
-            {% else %}
-                <div class="empty-note">No major matched keywords detected.</div>
-            {% endif %}
-        </div>
-
-        <!-- MISSING -->
-        <h3 style="margin-top:25px;">❌ Missing Skills</h3>
-        <div class="tag-box">
-            {% if missing %}
-                {% for s in missing[:12] %}
-                    <span class="tag missing">{{ s }}</span>
-                {% endfor %}
-            {% else %}
-                <div class="empty-note">Great job — no critical skill gaps detected.</div>
-            {% endif %}
-        </div>
-
-        <div class="btn-group">
-            <a href="/candidate" class="btn btn-dashboard">← Dashboard</a>
-
-            {% if missing %}
-                <a href="/candidate/fix_resume" class="btn btn-fix">
-                    ✨ One-Click Improve
-                </a>
-            {% endif %}
-
-            <a href="/candidate/create" class="btn btn-edit">
-                Edit Manually →
-            </a>
-
-            {% if session.get('resume_data') %}
-                <a href="/candidate/download" class="btn btn-download">
-                    ⬇ Download Resume
-                </a>
-            {% endif %}
-        </div>
-
+            <a href="/logout" class="logout-btn">Logout</a>
+        </aside>
+        <main class="main">
+            <section class="panel">
+                <div class="job-title">Match Result for: {{ job_title }}</div>
+                <div class="summary-text">Review score insights and learn current trend guidance designed for ATS harmony and career-impacting improvement.</div>
+                <div class="score-block">
+                    <div class="score-badge">
+                        <strong>{{ final }}%</strong>
+                    </div>
+                    <div class="score-text">
+                        <h3>{% if final >= 80 %}Excellent Match{% elif final >= 60 %}Solid Alignment{% else %}Improvement Opportunity{% endif %}</h3>
+                        <p>Score is based on semantic relevance, skills overlap, and resume structure relative to the selected role.</p>
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <h4>Matched Skills</h4>
+                    <div class="tag-grid">
+                        {% if matched %}
+                            {% for skill in matched[:12] %}
+                                <span class="tag">{{ skill }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="tag">No key matches detected</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if focus_skills %}
+                <div class="panel-card" style="margin-top: 24px;">
+                    <h4>Focus Skills</h4>
+                    <div class="focus-pill">{{ focus_skills | join(', ') }}</div>
+                    <p style="color: var(--muted);">Prioritize these areas in your professional development and project narratives for higher alignment.</p>
+                </div>
+                {% endif %}
+                <div class="panel-rows">
+                    <article class="panel-card">
+                        <h4>Current Trends</h4>
+                        <ul class="trend-list">
+                            {% for trend in current_trends %}
+                                <li>{{ trend }}</li>
+                            {% endfor %}
+                        </ul>
+                    </article>
+                    <article class="panel-card">
+                        <h4>Professional Guidance</h4>
+                        <p>Focus on real project outcomes, measurable impact, and modern tools rather than simply matching keywords. This improves ATS performance and recruiter trust.</p>
+                    </article>
+                </div>
+                <div class="button-row">
+                    <a href="/candidate" class="btn btn-back">Back to Dashboard</a>
+                    <a href="/candidate/create" class="btn btn-secondary">Update Resume</a>
+                    {% if session.get('resume_data') %}
+                        <a href="/candidate/download" class="btn btn-action">Download Resume</a>
+                    {% endif %}
+                </div>
+            </section>
+        </main>
     </div>
-
-</div>
-
 </body>
 </html>
