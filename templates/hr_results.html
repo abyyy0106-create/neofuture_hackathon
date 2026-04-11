@@ -8,7 +8,11 @@
 
 {% for r in results %}
 <tr>
+<<<<<<< HEAD
 <td>{{ r.name }}</td>
+=======
+<td>{{ r.get('name','resume') }}</td>
+>>>>>>> ec333ba (final changes)
 <td>{{ r.score }}</td>
 </tr>
 {% endfor %}

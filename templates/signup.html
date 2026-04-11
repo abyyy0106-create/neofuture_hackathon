@@ -1,17 +1,23 @@
 <h2>Signup</h2>
 
 <form method="POST">
+
     Username:<br>
-    <input type="text" name="username"><br><br>
+    <input type="text" name="username" required><br><br>
 
     Password:<br>
-    <input type="password" name="password"><br><br>
+    <input type="password" name="password" required><br><br>
 
     Role:<br>
-    <select name="role">
+    <select name="role" required>
+        <option value="">Select Role</option>
         <option value="hr">HR</option>
         <option value="candidate">Candidate</option>
     </select><br><br>
 
     <button type="submit">Signup</button>
+
 </form>
+
+<br>
+<a href="/login">Already have account? Login</a>

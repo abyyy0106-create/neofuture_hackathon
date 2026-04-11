@@ -1,14 +1,10 @@
 import logging
 from sentence_transformers import SentenceTransformer, util
-import numpy as np
-from typing import Dict, List, Union
-import re
-import hashlib
-from functools import lru_cache
 
-TFIDF_WEIGHT = 0.5
-SEMANTIC_WEIGHT = 0.5
+# Load model ONCE (important for performance)
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
+<<<<<<< HEAD
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -16,19 +12,18 @@ class SemanticMatcher:
     def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
         """
         Initialize the semantic matcher with a pre-trained model.
+=======
+def sbert_similarity(text1, text2):
+    """
+    Returns semantic similarity score (0–100)
+    using SBERT embeddings + cosine similarity
+    """
+>>>>>>> ec333ba (final changes)
 
-        Args:
-            model_name: Name of the sentence transformer model to use
-        """
-        logger.info(f"Initializing SemanticMatcher with model: {model_name}")
-        try:
-            self.model = SentenceTransformer(model_name)
-            logger.info(f"Successfully loaded model: {model_name}")
-        except Exception as e:
-            logger.warning(f"Could not load model {model_name}: {e}")
-            logger.info("Falling back to basic text similarity instead of semantic matching")
-            self.model = None
+    if not text1.strip() or not text2.strip():
+        return 0.0
 
+<<<<<<< HEAD
     def calculate_match(self, resume_data: Union[Dict, str], job_description: str) -> float:
         """
         Calculate semantic match score between resume and job description.
@@ -404,3 +399,10 @@ class SemanticMatcher:
         except Exception as e:
             logger.error(f"Error in _extract_keywords: {e}", exc_info=True)
             return set()
+=======
+    emb1 = model.encode(text1, convert_to_tensor=True)
+    emb2 = model.encode(text2, convert_to_tensor=True)
+
+    score = util.cos_sim(emb1, emb2).item()
+    return round(score * 100, 2)
+>>>>>>> ec333ba (final changes)

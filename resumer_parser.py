@@ -1,42 +1,24 @@
-def load_text(file_path):
-    with open(file_path, "r") as f:
-        return f.read().lower()
-# resumer_parser.py
-
-import re
+import pdfplumber
 import docx
-import PyPDF2
+import re
 
-
-# -----------------------------
-# 1. Extract text from PDF
-# -----------------------------
-def extract_text_from_pdf(file_path):
+def extract_text(file, filename):
     text = ""
-    try:
-        with open(file_path, "rb") as file:
-            reader = PyPDF2.PdfReader(file)
-            for page in reader.pages:
+
+    if filename.endswith(".pdf"):
+        with pdfplumber.open(file) as pdf:
+            for page in pdf.pages:
                 text += page.extract_text() or ""
-    except Exception as e:
-        print("Error reading PDF:", e)
-    return text
 
-
-# -----------------------------
-# 2. Extract text from DOCX
-# -----------------------------
-def extract_text_from_docx(file_path):
-    text = ""
-    try:
-        doc = docx.Document(file_path)
+    elif filename.endswith(".docx"):
+        doc = docx.Document(file)
         for para in doc.paragraphs:
             text += para.text + "\n"
-    except Exception as e:
-        print("Error reading DOCX:", e)
-    return text
+
+    return clean_text(text)
 
 
+<<<<<<< HEAD
 # -----------------------------
 # 3. Extract Email
 # -----------------------------
@@ -119,3 +101,9 @@ if __name__ == "__main__":
 
     print("\nParsed Resume Data:")
     print(result)
+=======
+def clean_text(text):
+    text = re.sub(r'\s+', ' ', text)      # remove extra spaces
+    text = re.sub(r'[^\w\s@.+-]', '', text)  # remove weird characters
+    return text.strip()
+>>>>>>> ec333ba (final changes)
