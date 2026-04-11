@@ -1,4 +1,0 @@
-Software professional with experience in Python programming, SQL databases,
-and backend application development. Worked on developing backend logic,
-handling data storage, and maintaining Git repositories.
-Comfortable working in Linux environments and collaborating in teams.
