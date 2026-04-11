@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Resume Preview | Candidate Portal</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            background: #f4f7fb;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(to bottom, #1e3a8a, #2563eb);
+            min-height: 100vh;
+            padding: 30px 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar h2 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 14px 15px;
+            margin-bottom: 12px;
+            text-decoration: none;
+            color: white;
+            border-radius: 12px;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .user-box {
+            font-size: 13px;
+            margin-top: 20px;
+        }
+
+        .logout-btn {
+            padding: 10px;
+            background: #ef4444;
+            text-align: center;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+        }
+
+        .main { flex: 1; padding: 50px; }
+
+        .resume-card {
+            background: white;
+            max-width: 1000px;
+            padding: 45px;
+            border-radius: 22px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        }
+
+        .job-title {
+            color: #2563eb;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .success-banner {
+            background: #dcfce7;
+            color: #166534;
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .resume-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .resume-header h2 {
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .section { margin-top: 25px; }
+
+        .section-title {
+            font-weight: 850;
+            color: #1d4ed8;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-tag {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .uploaded-preview {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 35px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            text-align: center;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-download { background: linear-gradient(to right, #2563eb, #1d4ed8); }
+        .btn-score { background: linear-gradient(to right, #16a34a, #15803d); }
+        .btn-edit { background: linear-gradient(to right, #f59e0b, #d97706); }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div>
+        <h2>Candidate Portal</h2>
+        <a href="/candidate">🏠 Dashboard</a>
+        <a href="/candidate/upload">📄 Upload Resume</a>
+        <a href="/candidate/create">✍️ Build Resume</a>
+
+        <div class="user-box">
+            Logged in as <b>{{ session['user'] }}</b>
+        </div>
+    </div>
+
+    <a href="/logout" class="logout-btn">Logout</a>
+</div>
+
+<div class="main">
+
+    <div class="resume-card">
+
+        {% if session.get("selected_job") %}
+            <div class="job-title">
+                Target Role: {{ session.get("selected_job") }}
+            </div>
+        {% endif %}
+
+        {% if session.get("improved") %}
+            <div class="success-banner">
+                🚀 Resume improved successfully!
+            </div>
+        {% endif %}
+
+        {% if resume.name %}
+
+            <div class="resume-header">
+                <h2>{{ resume.name }}</h2>
+                <p>{{ resume.email }} | {{ resume.phone }}</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Summary</div>
+                {{ resume.summary }}
+            </div>
+
+            <div class="section">
+                <div class="section-title">Skills</div>
+                <div class="skills-grid">
+                    {% for skill in resume.skills %}
+                        <div class="skill-tag">{{ skill }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        {% else %}
+
+            <div class="section-title">Uploaded Resume Preview</div>
+            <div class="uploaded-preview">
+                {{ resume }}
+            </div>
+
+        {% endif %}
+
+        <div class="btn-group">
+            {% if resume.name %}
+                <a href="/candidate/download" class="btn btn-download">
+                    ⬇ Download PDF
+                </a>
+                <a href="/candidate/create" class="btn btn-edit">
+                    ✏ Edit Resume
+                </a>
+            {% else %}
+                <a href="/candidate/upload" class="btn btn-edit">
+                    🔁 Re-Upload Resume
+                </a>
+            {% endif %}
+
+            <a href="/candidate/check" class="btn btn-score">
+                🤖 Check AI Match Score
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,35 +1,369 @@
-<h2>HR Dashboard</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>HR Dashboard</title>
 
-<h3>Upload Job Description</h3>
-<form method="POST" action="/hr/upload" enctype="multipart/form-data">
-    Job Title:<br>
-    <input type="text" name="title" required><br><br>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    Upload JD:<br>
-    <input type="file" name="jd" required><br><br>
+        body {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            background: #f7f9fc;
+            color: #222;
+        }
 
-    <button type="submit">Upload</button>
+        /* ===== NAVBAR ===== */
+        .navbar {
+            width: 100%;
+            background: white;
+            padding: 18px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .nav-left h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .nav-left span {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .user-info b {
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            text-decoration: none;
+            background: #ef4444;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.25s ease;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(220, 38, 38, 0.25);
+        }
+
+        /* ===== DASHBOARD CONTAINER ===== */
+        .container {
+            width: 90%;
+            max-width: 1150px;
+            margin: auto;
+            padding: 50px 0;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .page-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #111;
+        }
+
+        .page-header p {
+            margin-top: 8px;
+            font-size: 15px;
+            color: #555;
+        }
+
+        /* ===== GRID LAYOUT ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 25px;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            transition: 0.25s ease;
+            border: 1px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border: 1px solid #dbeafe;
+            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.12);
+        }
+
+        .card h3 {
+            font-size: 20px;
+            font-weight: 650;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        /* ===== INPUT ===== */
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 1px solid #d1d5db;
+            font-size: 14px;
+        }
+
+        /* ===== UPLOAD BOX ===== */
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            padding: 25px;
+            border-radius: 14px;
+            text-align: center;
+            background: #f9fbff;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upload-box:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-box label {
+            display: block;
+            font-size: 14px;
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .upload-box small {
+            display: block;
+            margin-top: 6px;
+            color: #777;
+            font-size: 12px;
+        }
+
+        /* ===== BUTTONS ===== */
+        button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: scale(1.01);
+        }
+
+        /* ===== JOB LIST ===== */
+        .job-list {
+            margin-top: 20px;
+        }
+
+        .job-item {
+            padding: 14px;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .job-item b {
+            font-size: 14px;
+            color: #111;
+        }
+
+        .delete-btn {
+            font-size: 13px;
+            text-decoration: none;
+            color: white;
+            background: #dc2626;
+            padding: 7px 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #b91c1c;
+        }
+
+        /* ===== DROPDOWN ===== */
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #d1d5db;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="nav-left">
+            <h1>TalentIQ HR</h1>
+            <span>AI Resume Screening Dashboard</span>
+        </div>
+
+        <div class="nav-right">
+            <div class="user-info">
+                Logged in as <b>{{ session['user'] }}</b>
+            </div>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+
+    <div class="container">
+
+        <div class="page-header">
+            <h2>HR Dashboard</h2>
+            <p>Upload multiple job openings, manage descriptions, and shortlist candidates instantly.</p>
+        </div>
+
+        <div class="grid">
+
+            <!-- JOB DESCRIPTION MANAGEMENT -->
+            <div class="card">
+                <h3>📌 Job Description Management</h3>
+                <p>Create and manage multiple job openings.</p>
+
+                <form method="post" action="/hr/upload_jd" enctype="multipart/form-data">
+
+                    <input type="text" name="job_title"
+                        placeholder="Enter Job Title (e.g., Software Engineer)"
+                            required>
+
+    <!-- NEW: Minimum Score -->
+    <input type="number" name="min_score"
+           placeholder="Minimum AI Score (e.g., 70)"
+           min="0" max="100"
+           required>
+
+    <!-- NEW: Minimum Experience -->
+    <input type="number" name="min_exp"
+           placeholder="Minimum Experience (Years)"
+           min="0">
+
+    <!-- NEW: Mandatory Skills -->
+    <input type="text" name="mandatory_skills"
+           placeholder="Mandatory Skills (comma separated, e.g., python, sql, machine learning)">
+
+    <small style="display:block; margin-bottom:10px; color:#666;">
+    Candidates missing these skills will be automatically rejected.
+</small>
+       
+    <div class="upload-box">
+        <label for="jd">Click to Upload JD File</label>
+        <small>PDF or DOCX supported</small>
+        <input type="file" id="jd" name="jd" required>
+    </div>
+
+    <button>Upload Job Opening</button>
 </form>
 
-<hr>
+                <div class="job-list">
+                    <h4 style="margin-top:25px; font-size:15px;">Uploaded Jobs:</h4>
 
-<h3>Available Jobs</h3>
+                    {% if jds %}
+                        {% for job in jds %}
+                            <div class="job-item">
+                                <b>{{ job.title }}</b>
+                                <a class="delete-btn"
+                                   href="/hr/delete_jd/{{ job._id }}"
+                                   onclick="return confirm('Delete this job opening?')">
+                                   Delete
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="margin-top:10px; font-size:13px; color:#666;">
+                            No job openings uploaded yet.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
 
-<ul>
-{% for job in jds %}
-<li>
-<b>{{ job.title }}</b><br><br>
+            <!-- RESUME ANALYSIS -->
+            <div class="card">
+                <h3>🤖 AI Resume Screening</h3>
+                <p>Select a job opening, upload resumes, and run AI screening.</p>
 
-<form method="POST" action="/hr/analyze" enctype="multipart/form-data">
-    <input type="hidden" name="jd_id" value="{{ job._id }}">
+                <form method="post" action="/hr/analyze" enctype="multipart/form-data">
+                    <label style="font-size:14px; font-weight:600;">
+                        Select Job Opening:
+                    </label>
 
-    Upload Resumes:<br>
-    <input type="file" name="resumes" multiple required><br><br>
+                    <select name="jd_id" required>
+                        <option value="">-- Choose Job Role --</option>
+                        {% for job in jds %}
+                            <option value="{{ job._id }}">
+                                {{ job.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
 
-    <button type="submit">Analyze</button>
-</form>
+                    <div class="upload-box" style="margin-top:18px;">
+                        <label for="resumes">Click to Upload Candidate Resumes</label>
+                        <small>Multiple files allowed</small>
+                        <input type="file" id="resumes" name="resumes" multiple required>
+                    </div>
 
-<br>
-</li>
-{% endfor %}
-</ul>
+                    <button>Run AI Screening</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
