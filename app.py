@@ -13,12 +13,22 @@ import pandas as pd
 from fpdf import FPDF
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
-from semantic_matcher import sbert_similarity
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+<<<<<<< HEAD
 # ===================== Flask Setup =====================
+=======
+def sbert_similarity(text1: str, text2: str) -> float:
+    """Lightweight similarity fallback for the app."""
+    if not text1 or not text2:
+        return 0.0
+    vectorizer = TfidfVectorizer(stop_words="english")
+    matrix = vectorizer.fit_transform([text1, text2])
+    return cosine_similarity(matrix[0:1], matrix[1:2])[0][0] * 100
+
+
+>>>>>>> 4f24208 (Added JD)
 app = Flask(__name__)
 app.secret_key = "final_secret_key"
 
